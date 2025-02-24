@@ -4,15 +4,19 @@ import (
 	"encoding/json"
 	"md-tnt-mgmt/iface"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Controller struct {
 	svc iface.Service
+	log *logrus.Logger
 }
 
-func New(svc iface.Service) *Controller {
+func New(svc iface.Service, log *logrus.Logger) *Controller {
 	return &Controller{
 		svc: svc,
+		log: log,
 	}
 }
 

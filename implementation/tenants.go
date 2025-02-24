@@ -41,3 +41,4 @@ func (s *service) GetTenants() ([]tenants.Tenants, error) {
 func (s *service) GetTenantByID(id string) (tenants.Tenants, error) {
 	return s.repo.GetTenantByID(id)
 }
+  

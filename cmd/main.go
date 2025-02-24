@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"md-tnt-mgmt/controller"
 	"md-tnt-mgmt/implementation"
 	"md-tnt-mgmt/repository"
@@ -13,11 +12,18 @@ import (
 	"syscall"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
+
+	// Logger
+	log := logrus.New()
+	log.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
 
 	err := godotenv.Load("../.env")
 	if err != nil {
@@ -49,9 +55,9 @@ func main() {
 
 	svc := implementation.New(repo)
 
-	controller := controller.New(svc)
+	controller := controller.New(svc, log)
 
-	handler := httpHandler.SetUpRouter(controller)
+	handler := httpHandler.SetUpRouter(controller, log)
 
 	errs := make(chan error)
 
@@ -61,7 +67,7 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	fmt.Println("Server is running " + httpAddr)
+	log.Info("Server is running " + httpAddr)
 
 	go func() {
 		server := &http.Server{
@@ -71,5 +77,5 @@ func main() {
 		errs <- server.ListenAndServe()
 	}()
 
-	log.Println("exit", <-errs)
+	log.Error("exit", <-errs)
 }
